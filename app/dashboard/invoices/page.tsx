@@ -6,6 +6,7 @@ import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
 import { fetchInvoicesPages } from '@/app/lib/data';
+import PagesManifestPlugin from 'next/dist/build/webpack/plugins/pages-manifest-plugin';
  
 export default async function Page({searchParams}: {
   searchParams?: {
@@ -15,7 +16,7 @@ export default async function Page({searchParams}: {
 }) {
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const totalPages = await fetchInvoicesPages(query);
+  // const totalPages = await fetchInvoicesPages(query);
 
   return (
     <div className="w-full">
@@ -30,10 +31,21 @@ export default async function Page({searchParams}: {
         <Table query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">
-        <Pagination totalPages={totalPages} />
+        {/* <Pagination totalPages={totalPages} /> */}
+        <Suspense>
+          <PaginationWrap query={query} />
+        </Suspense>
       </div>
     </div>
   );
+}
+
+async function PaginationWrap({query}: { query:string}) {
+  const totalPages = await fetchInvoicesPages(query);
+
+  return (
+    <Pagination totalPages={totalPages}></Pagination>
+  )
 }
 
 export const dynamic = 'force-dynamic';
